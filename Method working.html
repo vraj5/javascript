@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Input Values to Table</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    form {
+      margin-bottom: 20px;
+      background-color: #f2f2f2;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="radio"],
+    input[type="date"],
+    button {
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 3px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Input Values to Table</h1>
+
+  <form id="inputForm" onsubmit="event.preventDefault(); addRow();">
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+    <p style="display: inline-block; padding-left: 20px; color: red;" id="nameerr"></p>
+    <br>
+    <label for="mobile">Mobile Number:</label>
+    <input type="tel" id="mobile" required>
+    <p style="display: inline-block; padding-left: 20px; color: red;" id="numerr"></p>
+    <br>
+    <label for="dob">Date of Birth:</label>
+    <input type="date" id="dob" required>
+    <br>
+    <label>Gender:</label>
+    <input type="radio" id="male" name="gender" value="Male" required>
+    <label for="male" style="display: inline-block;">Male</label>
+    <input type="radio" id="female" name="gender" value="Female" required>
+    <label for="female" style="display: inline-block;">Female</label>
+    <br>
+    <button type="submit">Add Row</button>
+  </form>
+
+  <table id="dataTable">
+    <tr>
+      <th>Name</th>
+      <th>Mobile Number</th>
+      <th>Date of Birth</th>
+      <th>Gender</th>
+    </tr>
+  </table>
+
+  <script>
+    function addRow() {
+      // Get the input values
+      var name = document.getElementById("name").value;
+      var mobile = document.getElementById("mobile").value;
+      var dob = document.getElementById("dob").value;
+      var gender = document.querySelector('input[name="gender"]:checked').value;
+      
+      // Validate mobile number length
+      if (mobile.length !== 10) {
+        document.getElementById("numerr").innerHTML = "Please, enter a valid 10-digit Mobile Number.";
+        document.forms["inputForm"].reset();
+        return false;
+      }
+
+      // Create a new row
+      var table = document.getElementById("dataTable");
+      var newRow = table.insertRow(-1);
+
+      // Insert cells with input values into the new row
+      var nameCell = newRow.insertCell(0);
+      var mobileCell = newRow.insertCell(1);
+      var dobCell = newRow.insertCell(2);
+      var genderCell = newRow.insertCell(3);
+      nameCell.innerHTML = name;
+      mobileCell.innerHTML = mobile;
+      dobCell.innerHTML = dob;
+      genderCell.innerHTML = gender;
+
+      // Clear the input fields
+      document.getElementById("name").value = "";
+      document.getElementById("mobile").value = "";
+      document.getElementById("dob").value = "";
+      document.getElementById("male").checked = false;
+      document.getElementById("female").checked = false;
+    }
+  </script>
+</body>
+</html>
