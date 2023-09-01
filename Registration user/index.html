@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/cdnjs.cloudflare.com_ajax_libs_toastr.js_latest_toastr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <!--------------------------------------=== Modal ===-------------------------------------->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" data-bs-dismiss="modal" onclick="modelClose()" class="modal-close-btn"
+                        aria-label="Close">
+                        <div class="close_main"><i class="fa-solid fa-xmark"></i></div>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="all_err_main" class="all_err_main">
+
+                    </div>
+                    <div class="register_body">
+                        <div class="row">
+                            <!-- =================== First Name -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">First Name :</label>
+                                <input type="text" class="register_input" id="first_name"
+                                    placeholder="Enter Your First Name">
+                            </div>
+                            <!-- =================== Last Name -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">Last Name :</label>
+                                <input type="text" class="register_input" id="last_name"
+                                    placeholder="Enter Your Last Name">
+                            </div>
+                            <!-- =================== Age -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">Age :</label>
+                                <input type="number" class="register_input" id="age" placeholder="Enter Your Age">
+                            </div>
+                            <!-- =================== Email -->
+                            <div class="col-6 input_main">
+                                <label class="input_label">Email :</label>
+                                <input type="email" class="register_input" id="email"
+                                    placeholder="Enter Your Email Address">
+                            </div>
+                            <!-- =================== Phone number -->
+                            <div class="col-6 input_main">
+                                <label class="input_label">Phone Number :</label>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <input type="text" class="register_input" id="phone"
+                                            placeholder="Enter Your Phone Number">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- =================== Password -->
+                            <div class="col-6 input_main">
+                                <label class="input_label">Password :</label>
+                                <div class="pass_main register_input">
+                                    <input type="password" class="col-11 pass_input" id="password"
+                                        placeholder="Enter Your Password">
+                                    <div class="col-1 pass_hide_main"><span class="after_show dn" id="after_show_p"><i i
+                                                onclick="pass()" class="fa-solid fa-eye pass_hide"></i></span><span
+                                            class="after_hide" id="after_hide_p"><i onclick="pass()"
+                                                class="fa-solid fa-eye-slash pass_hide"></i></span></div>
+                                </div>
+                            </div>
+                            <!-- =================== Confirm Password -->
+                            <div class="col-6 input_main">
+                                <label class="input_label">Confirm Password :</label>
+                                <div class="pass_main register_input">
+                                    <input type="password" class="col-11 pass_input" id="c_password"
+                                        placeholder="Enter Your Password">
+                                    <div class="col-1 pass_hide_main"><span class="after_show dn" id="after_show_cp"><i
+                                                onclick="c_pass()" class="fa-solid fa-eye pass_hide"></i></span><span
+                                            class="after_hide" id="after_hide_cp"><i onclick="c_pass()"
+                                                class="fa-solid fa-eye-slash pass_hide"></i></span></div>
+                                </div>
+                            </div>
+                            <!-- =================== Gender -->
+                            <div class="col-4 input_main">
+                                <div class="col-12">
+                                    <label class="input_label input_label_main">Gender :</label>
+                                    <input type="radio" class="radio_input" name="gender" id="male" value="male"><label
+                                        for="male" class="input_label radio_label">Male</label>
+                                    <input type="radio" class="radio_input" name="gender" id="female"
+                                        value="female"><label for="female"
+                                        class="input_label radio_label">Female</label>
+                                </div>
+                            </div>
+                            <!-- =================== Skills -->
+                            <div class="col-8 input_main">
+                                <label class="input_label">Skills :</label>
+                                <div class="row">
+                                    <div class="col-6 skill_menus">
+                                        <div class="pass_main register_input">
+                                            <input type="text" class="col-11 pass_input" id="skill"
+                                                placeholder="Enter Your Skill">
+                                            <div class="col-1 skill_submit_main"><i onclick="addSkill()"
+                                                    class="fa-solid fa-plus pass_hide"></i></div>
+                                        </div>
+                                        <button id="clear_all_skill" onclick="clear_all_skill()"
+                                            class="clear_all_skill">Clear All Skill</button>
+                                    </div>
+                                    <div class="col-6">
+                                        <div id="all_skill_main" class="all_skill_main">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- =================== Hobbies -->
+                            <div class="col-12 form-check" style="margin-top: 10px;">
+                                <label class="input_label input_label_main">Hobbies :</label>
+                                <div class="ms-2 form-check-inline form-switch">
+                                    <input class="form-check-input" type="checkbox" id="all" name="all" value="all" />
+                                    <label class="form-check-label" for="all">All</label>
+                                </div>
+                                <div class="ms-2 form-check-inline form-switch">
+                                    <input class="form-check-input" type="checkbox" id="programming" name="programming"
+                                        value="programming" />
+                                    <label class="form-check-label" for="programming">programming</label>
+                                </div>
+                                <div class="ms-2 form-check-inline form-switch">
+                                    <input class="form-check-input" type="checkbox" id="designing" name="designing"
+                                        value="designing" />
+                                    <label class="form-check-label" for="designing">designing</label>
+                                </div>
+                                <div class="ms-2 form-check-inline form-switch">
+                                    <input class="form-check-input" type="checkbox" id="dancing" name="dancing"
+                                        value="dancing" />
+                                    <label class="form-check-label" for="dancing">Dancing</label>
+                                </div>
+                                <div class="ms-2 form-check-inline form-switch">
+                                    <input class="form-check-input" type="checkbox" id="swimming" name="swimming"
+                                        value="swimming" />
+                                    <label class="form-check-label" for="swimming">swimming</label>
+                                </div>
+                            </div>
+                            <!-- =================== Country -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">Country :</label>
+                                <select name="country" id="country" onchange="selectState(event)"
+                                    class="select_field register_input">
+                                    <option value="" selected="selected">Select Country</option>
+                                </select>
+                            </div>
+                            <!-- =================== State -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">State :</label>
+                                <select name="state" id="state" onchange="selectCity(event)"
+                                    class="select_field register_input">
+                                    <option value="" selected="selected">Select State</option>
+                                </select>
+                            </div>
+                            <!-- =================== City -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">City :</label>
+                                <select name="city" id="city" class="select_field register_input">
+                                    <option value="" selected="selected">Select City</option>
+                                </select>
+                            </div>
+                            <!-- =================== Write about you -->
+                            <div class="col-12 input_main">
+                                <label class="input_label">Write about you :</label>
+                                <textarea name="about_user" class="register_text" id="about_user" cols="30"
+                                    rows="10"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" id="modal-footer">
+                    <button type="button" id="complete_register_btn" onclick="complete_registration()"
+                        class="complete_register_btn db">Register <span><i
+                                class="fa-solid fa-arrow-right"></i></span></button>
+                    <button type="button" id="update_btn" onclick="update_form()"
+                        class="update_btn complete_register_btn dn">Update <span><i
+                                class="fa-solid fa-arrow-right"></i></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--------------------------------------=== Modal Admin ===-------------------------------------->
+    <div class="modal fade" id="adminModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" data-bs-dismiss="modal" class="modal-close-btn" aria-label="Close">
+                        <div class="close_main"><i class="fa-solid fa-xmark"></i> </div>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6" style="text-align: center; margin: 0 auto;">
+                            <img src="img/user.jpeg" class="user_image" style="width: 50%;" alt="admin-image">
+                            <h2 style="font-weight: 700; margin-top: 30px;">Vraj Patoliya</h2>
+                            <h4 style="color: red;">Admin</h4>
+                            <p>+91 81413 83280</p>
+                            <button type="button" data-bs-dismiss="modal" style="background-color: red;"
+                                aria-label="Close" class="mt-5 complete_register_btn">Log Out<span><i class="fa-solid fa-right-from-bracket"></i></span></button>
+                        </div>
+                        <div class="col-6">
+                            <!-- =================== admin Name -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">Full Name :</label>
+                                <input type="text" class="register_input admin_input" id="admin_name"
+                                    placeholder="Enter Your Name">
+                            </div>
+                            <!-- =================== mobile number -->
+                            <div class="col-4 input_mai mt-3">
+                                <label class="input_label">Mobile Number :</label>
+                                <input type="tel" class="register_input admin_input" id="admin_phone"
+                                    placeholder="Enter Your Mobile Number">
+                            </div>
+                            <!-- =================== State -->
+                            <div class="col-4 input_main mt-3">
+                                <label class="input_label">Authorization :</label>
+                                <select name="authorization_select" id="authorization_select"
+                                    class="select_field register_input auth_select">
+                                    <option value="" selected="-- Select Authorization --">Select Authorization</option>
+                                    <option value="admin">admin</option>
+                                    <option value="user">user</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" id="modal-footer">
+                    <button type="button" data-bs-dismiss="modal" aria-label="Close" class="complete_register_btn">Got
+                        It <span><i class="fa-solid fa-circle-check"></i></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--------------------------------------=== USER INFO MODEL ===-------------------------------------->
+    <div class="modal fade" id="userDetailsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" data-bs-dismiss="modal" class="modal-close-btn" aria-label="Close">
+                        <div class="close_main"><i class="fa-solid fa-xmark"></i> </div>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="user_main col-12">
+                        <div id="userInfoDisplay" class="row col-12"></div>
+                    </div>
+                </div>
+                <div class="modal-footer" id="modal-footer">
+                    <button type="button" data-bs-dismiss="modal" aria-label="Close" class="complete_register_btn">Got
+                        It <span><i class="fa-solid fa-circle-check"></i></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--------------------------------------=== Table ===-------------------------------------->
+    <div class="container-fluid">
+        <div class="col-12">
+            <div class="other_main">
+                <div class="main-1 col-6">
+                    <div class="user_main">
+                        <div class="image">
+                            <img class="user_image" src="img/user.jpeg" alt="user-image">
+                        </div>
+                        <div class="info">
+                            <button data-bs-toggle="modal" data-bs-target="#adminModal">
+                                <h4 id="displayAdmin">Vraj Patoliya</h4><span><i
+                                        class="fa-solid fa-pen-to-square"></i></span>
+                            </button>
+                            <p id="authorization_type">admin</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="main-2 search col-6">
+                    <div class="user_search_main col-6">
+                        <input type="text" onkeyup="findFromTable()" placeholder="Search User" id="user_search"
+                            class="user_search" />
+                        <button id="user_search_btn" class="user_search_btn"><i
+                                class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                    <button class="register_btn" id="register_btn" data-bs-toggle="modal"
+                        data-bs-target="#staticBackdrop">Add User
+                        <span><i class="fa-solid fa-plus"></i></span></button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="fname_cell">First Name <span id="fname_sort"><i
+                                        class="fa-solid fa-filter"></i></span></th>
+                            <th>Last Name <span id="lname_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Age <span id="age_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Email <span id="email_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Phone <span id="phone_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Password <span id="password_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Gender <span id="gender_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Hobbies <span id="hobbies_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Skills <span id="skills_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>Country <span id="country_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>State <span id="state_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>City <span id="city_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th>About <span id="about_sort"><i class="fa-solid fa-filter"></i></span></th>
+                            <th class="update_cell">Update</th>
+                            <th class="delete_cell">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+                <div class="pagi-main"></div>
+            </div>
+            <div class="other_main">
+                <div class="main-1 col-6">
+                    <div class="pagination_btn_main" id="pagination_btn_main">
+                        <button class="register_btn pagination_btn" id="trash_btn" data-bs-toggle="offcanvas"
+                            data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">Trash <span><i
+                                    class="fa-solid fa-trash"></i></span></button>
+                    </div>
+                    <div class="pagination_input_main">
+                        <input type="number" class="register_input pagination_row_inp" id="pagination_row_inp" value="10">
+                    </div>
+                </div>
+                <div class="main-2 col-6">
+                    <div class="pagination_btn_main d-flex" id="pagination_btn_main">
+                        <button class="register_btn pagination_btn" id="register_btn"><i
+                                class="fa-solid fa-arrow-left-long"></i></button>
+                        <div id="allPaginationBtn"></div>
+                        <button class="register_btn pagination_btn" id="register_btn"><i
+                                class="fa-solid fa-arrow-right-long"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--------------------------------------=== Trash Offcanvas ===-------------------------------------->
+    <div class="offcanvas offcanvas-start offcanvas-size-xxl" tabindex="-1" id="offcanvasExample"
+        aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" class="deleted_user_label" id="offcanvasExampleLabel">Deleted Users ( Trash )
+            </h5>
+            <button type="button" class="text-reset" data-bs-dismiss="offcanvas" aria-label="Close"><span
+                    class="offcanvas-close"><i class="fa-solid fa-xmark"></i></span></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="row" style="display: flex; justify-content: end; padding: 0 30px;">
+                <button style="padding-left: 40px; padding-right: 40px; width: max-content;" class="register_btn" onclick="delete_all_trash()">Delete All
+                        <span><i class="fa-solid fa-user-slash"></i></span></button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="fname_cell">First Name <span id="fname_sort"></span></th>
+                            <th>Last Name <span id="lname_sort"></span></th>
+                            <th>Age <span id="age_sort"></span></th>
+                            <th>Email <span id="email_sort"></span></th>
+                            <th>Phone <span id="phone_sort"></span></th>
+                            <th>Password <span id="password_sort"></span></th>
+                            <th>Gender <span id="gender_sort"></span></th>
+                            <th>Hobbies <span id="hobbies_sort"></span></th>
+                            <th>Skills <span id="skills_sort"></span></th>
+                            <th>Country <span id="country_sort"></span></th>
+                            <th>State <span id="state_sort"></span></th>
+                            <th>City <span id="city_sort"></span></th>
+                            <th>About <span id="about_sort"></span></th>
+                            <th class="update_cell">Recover</th>
+                            <th class="delete_cell">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trash_tbody"></tbody>
+                </table>
+                <div class="pagi-main"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+        integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="./js/cdnjs.cloudflare.com_ajax_libs_toastr.js_latest_toastr.min.js"></script>
+    <script src="./js/code.jquery.com_jquery-3.7.0.min.js"></script>
+    <script src="js/script.js"></script>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/all.min.js"></script>
+</body>
+
+</html>
