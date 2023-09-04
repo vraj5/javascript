@@ -27,7 +27,7 @@ let programming = document.getElementById("programming");
 let designing = document.getElementById("designing");
 let dancing = document.getElementById("dancing");
 let swimming = document.getElementById("swimming");
-let pagination_row_inp = document.getElementById("pagination_row_inp");
+let image_src;
 var gender;
 
 // ----------------------------- Trashed Content -----------------------------
@@ -91,9 +91,13 @@ let all_err_main = document.getElementById("all_err_main")
 let err_main = document.getElementById("err_main");
 let errs = document.getElementById("errs");
 
-// ----------------------------- For Password hide/unhide -----------------------------
+// ----------------------------- Main All Users -----------------------------
 if (localStorage.getItem("users") == null) {
     localStorage.setItem("users", '[]')
+}
+// ----------------------------- Admin Local -----------------------------
+if (localStorage.getItem("admin") == null) {
+    localStorage.setItem("admin", '[]')
 }
 
 // ----------------------------- CHECKBOX Tap All to select all  -----------------------------
@@ -178,6 +182,18 @@ pagination_row_inp.addEventListener("keypress", (e) => {
     }
 })
 
+let imageUpload = document.getElementById("imageUpload");
+function afterImageUpload(element){
+    let file = element.files[0];
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = function(){
+        console.log("reader.result", reader.result);
+        image_src = reader.result;
+        console.log('image_src :', image_src);
+    }
+};
+
 // ----------------------------- Validations after submit -----------------------------
 function complete_registration() {
     errorNote = "";
@@ -228,6 +244,9 @@ function complete_registration() {
     }
     if (all_skill.length < 3) {
         errorNote += "Please Enter Atleast 3 Skills * <br/>"
+    }
+    if (!image_src) {
+        errorNote += "Please Upload your Image * <br/>"
     }
     if (errorNote) {
         validateError();
@@ -282,8 +301,34 @@ function complete_registration() {
         all_skill.forEach((e) => {
             skills.push(e)
         })
+
+        let arr = [];
+        allUsers.map((e)=>{
+            arr.push(e.id);
+        });
+
+        for(i=0;i<arr.length;i++){
+            for(j=i+1;j<arr.length;j++){
+                if(arr[i] > arr[j]){
+                    let a = arr[j];
+                    arr[j] = arr[i];
+                    arr[j] = a;
+                }
+            }
+        }
+
+        let lastIndexArr;
+        for(i=0;i<arr.length;i++){
+            lastIndexArr = arr[parseInt(i)];
+        }
+        if(lastIndexArr == undefined){
+            lastIndexArr = -1
+        }
+        console.log('lastIndexArr :', lastIndexArr);
+        console.log('arr :', arr);
+
         let userObj = {
-            id: allUsers.length + 1,
+            id: lastIndexArr + 1,
             first_name: first_name.value,
             last_name: last_name.value,
             age: age.value,
@@ -300,6 +345,7 @@ function complete_registration() {
             c_id: countryValue,
             s_id: stateValue,
             ct_id: cityValue,
+            image_url : image_src
         }
         allUsers.push(userObj)
         localStorage.setItem("users", JSON.stringify(allUsers))
@@ -308,8 +354,12 @@ function complete_registration() {
 
         // -=-=-=-=-=-=-=-=-=-=-= Make Empty whole user input
         emptyInput();
+
+        pagination();
+        pageChange(1);
     }
 };
+
 // ----------------------------- Print Data on Table -----------------------------
 displayOnTable();
 // ----------------------------- Display data in Table -----------------------------
@@ -334,11 +384,53 @@ function displayOnTable() {
                     <td>${e.city}</td>
                     <td>${e.description}</td>
                     <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${e.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                    <td><button class="closeBtn" onclick="deleteRow(${e.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    <td><button class="closeBtn" onclick="deletePopup(${e.id})"><i class="fa-solid fa-trash"></i></button></td>
                 </tr>`
     });
     tbody.innerHTML = Tempdata;
 
+    // pagination();
+    // pageChange(1);
+
+}
+
+// ----------------------------- Delete popup -----------------------------
+let delete_popup = document.getElementById("delete_popup");
+let delete_btns_main = document.getElementById("delete_btns_main");
+function deletePopup(id){
+    delete_btns_main.innerHTML = "";
+    delete_popup.classList.remove("dn")
+    delete_popup.classList.add("db")
+    delete_btns_main.innerHTML =
+    `<div class="cancle_btn"><button onclick="closeDeletePopup()">Cancle</button></div>
+    <div class="delete_btn"><button onclick="deleteRow(${id})">Delete</button></div>`
+}
+// ----------------------------- Close Delete popup -----------------------------
+function closeDeletePopup(){
+    delete_popup.classList.remove("db")
+    delete_popup.classList.add("dn")
+}
+
+// ----------------------------- Delete Row -----------------------------
+if (localStorage.getItem("deleted_user") == null) {
+    localStorage.setItem("deleted_user", '[]')
+}
+let deleted_user = JSON.parse(localStorage.getItem("deleted_user"))
+function deleteRow(id) {
+    let row = allUsers.findIndex((e) => e.id == id);
+    let rowInner = allUsers[row]
+    deleted_user.push(rowInner)
+    localStorage.setItem("deleted_user", JSON.stringify(deleted_user));
+    allUsers.splice(row, 1)
+    localStorage.setItem("users", JSON.stringify(allUsers));
+    displayOnTable()
+    displayOnTrashTable()
+
+    delete_popup.classList.remove("db")
+    delete_popup.classList.add("dn")
+
+    pagination();
+    pageChange(1);
 }
 // ----------------------------- Show User Info --------------------------
 function showUserInfo(id) {
@@ -348,19 +440,21 @@ function showUserInfo(id) {
     let userInfoDisplay = document.getElementById("userInfoDisplay");
 
     userInfoDisplay.innerHTML =
-        `<div class="col-5"><h5><p><i class="fa-solid fa-user"></i></p>First Name : <span>${obj.first_name}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-user"></i></p>Last Name : <span>${obj.last_name}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-person"></i></p>Age : <span>${obj.age}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-envelope"></i></p>Email : <span>${obj.email}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-phone"></i></p>Phone : <span>${obj.phone}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-lock"></i></p>Password : <span>${obj.password}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-users-viewfinder"></i></p>Gender : <span>${obj.gender}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-circle-plus"></i></p>Skill : <span>${obj.skill}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-heart"></i></p>Hobbies : <span>${obj.hobbies}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-location-dot"></i></p>Country : <span>${obj.country}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-location-dot"></i></p>State : <span>${obj.state}</span></h5></div>
-    <div class="col-5"><h5><p><i class="fa-solid fa-location-dot"></i></p>City : <span>${obj.city}</span></h5></div>
-    <div class="col-11"><h5><p><i class="fa-solid fa-circle-info"></i></p>About : <span>${obj.about}</span></h5></div>`
+        `
+    <div class="col-10"><img src="${obj.image_url}" /></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-user"></i></p>First Name : <span>${obj.first_name}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-user"></i></p>Last Name : <span>${obj.last_name}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-person"></i></p>Age : <span>${obj.age}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-envelope"></i></p>Email : <span>${obj.email}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-phone"></i></p>Phone : <span>${obj.phone}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-lock"></i></p>Password : <span>${obj.password}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-users-viewfinder"></i></p>Gender : <span>${obj.gender}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-circle-plus"></i></p>Skill : <span>${obj.skill}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-heart"></i></p>Hobbies : <span>${obj.hobbies}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-location-dot"></i></p>Country : <span>${obj.country}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-location-dot"></i></p>State : <span>${obj.state}</span></h5></div>
+    <div class="col-lg-5"><h5><p><i class="fa-solid fa-location-dot"></i></p>City : <span>${obj.city}</span></h5></div>
+    <div class="col-11"><h5><p><i class="fa-solid fa-circle-info"></i></p>About : <span>${obj.description}</span></h5></div>`
 }
 // ----------------------------- Update Row --------------------------
 let new_update_row;
@@ -519,6 +613,9 @@ function update_form() {
 
     new_update_row.gender = gender;
 
+    console.log('new_update_row.image_src :', new_update_row.image_url);
+    new_update_row.image_url = image_src
+
 
     all_skill.forEach((e) => {
         obj.skill.push(e)
@@ -545,11 +642,15 @@ function update_form() {
 
     new_update_row.hobbies = new_hobbies;
 
+    console.log('obj :', obj);
     allUsers.splice(row, 1, obj);
     localStorage.setItem("users", JSON.stringify(allUsers));
 
     displayOnTable();
     emptyInput();
+
+    pagination();
+    pageChange(1);
 
 }
 
@@ -613,23 +714,8 @@ function clear_all_skill() {
         all_skill.pop();
     };
 };
-// ----------------------------- Delete Row -----------------------------
-if (localStorage.getItem("deleted_user") == null) {
-    localStorage.setItem("deleted_user", '[]')
-}
-let deleted_user = JSON.parse(localStorage.getItem("deleted_user"))
-function deleteRow(id) {
-    let row = allUsers.findIndex((e) => e.id == id);
-    let rowInner = allUsers[row]
-    deleted_user.push(rowInner)
-    localStorage.setItem("deleted_user", JSON.stringify(deleted_user));
-    allUsers.splice(row, 1)
-    localStorage.setItem("users", JSON.stringify(allUsers));
-    displayOnTable()
-    displayOnTrashTable()
-}
 
-// ----------------------------- Submit to press enter on about user -----------------------------
+// ----------------------------- Submit to press enter on about      -----------------------------
 about_user.addEventListener("keydown", (e) => {
     if (e.keyCode == 13) {
         complete_registration();
@@ -783,6 +869,10 @@ function findFromTable() {
     let tempData = allData.filter((e) => Object.values(e).join(',').toLowerCase().includes(search_value))
     allUsers = tempData
     displayOnTable();
+    if(search.value == ""){
+        pagination();
+        pageChange(1);
+    }
 };
 // ----------------------------- Sorting with click -----------------------------
 let fname_sort = document.getElementById("fname_sort");
@@ -807,7 +897,7 @@ fname_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -822,7 +912,7 @@ fname_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -835,7 +925,7 @@ lname_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -850,7 +940,7 @@ lname_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -863,7 +953,7 @@ age_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -878,7 +968,7 @@ age_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -891,7 +981,7 @@ email_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -906,7 +996,7 @@ email_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -919,7 +1009,7 @@ phone_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -934,7 +1024,7 @@ phone_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -947,7 +1037,7 @@ password_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -962,7 +1052,7 @@ password_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -976,7 +1066,7 @@ hobbies_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -991,7 +1081,7 @@ hobbies_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -1005,7 +1095,7 @@ skills_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -1020,7 +1110,7 @@ skills_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -1033,7 +1123,7 @@ gender_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -1048,10 +1138,11 @@ gender_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
+
 });
 // =========== Country Sorting
 country_sort.addEventListener("click", () => {
@@ -1061,7 +1152,7 @@ country_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -1076,7 +1167,7 @@ country_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -1089,7 +1180,7 @@ state_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -1104,7 +1195,7 @@ state_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -1117,7 +1208,7 @@ city_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -1132,7 +1223,7 @@ city_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
@@ -1145,7 +1236,7 @@ about_sort.addEventListener("click", () => {
         let a = e;
         Tempdata +=
             `<tr id="${a.id}">
-                <td><button style="margin:10px 10px;"><i class="fa-solid fa-circle-info"></i></button</td>
+                <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info><i class="fa-solid fa-circle-info"></i></button</td>
                 <td>${a.first_name}</td>
                 <td>${a.last_name}</td>
                 <td>${a.age}</td>
@@ -1160,12 +1251,71 @@ about_sort.addEventListener("click", () => {
                 <td>${a.city}</td>
                 <td>${a.description}</td>
                 <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${a.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                <td><button class="closeBtn" onclick="deleteRow(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
+                <td><button class="closeBtn" onclick="deletePopup(${a.id})"><i class="fa-solid fa-trash"></i></button></td>
             </tr>`
     });
     tbody.innerHTML = Tempdata;
 });
 
+// // // ----------------------------- Pagination on table -----------------------------
+let next_page = document.getElementById("next_page")
+let prev_page = document.getElementById("prev_page")
+function pagination() {
+    let pagination_row_inp = document.getElementById("pagination_row_inp");
+    let n = pagination_row_inp.value;
+    console.log('n :', n);
+    let allPaginationBtn = document.getElementById("allPaginationBtn");
+
+    allPaginationBtn.innerHTML = ""
+
+    let btnLength = Math.ceil(allUsers.length / n);
+
+    for (i = 1; i <= btnLength; i++) {
+        allPaginationBtn.innerHTML +=
+        `
+        <button class="register_btn pagination_btn" id="${i}" onclick="pageChange(${i})">${i}</button>
+        `
+    }
+}
+function pageChange(pageNo) {
+    let pagination_row_inp = document.getElementById("pagination_row_inp");
+    let tempallUsers = JSON.parse(localStorage.getItem("users"));
+    let n = pagination_row_inp.value;
+    let Tempdata = "";
+    tempallUsers.splice((pageNo - 1) * n, n).forEach((e) => {
+        Tempdata +=
+            `
+                <tr id="${e.id}">
+                    <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info"></i></button</td>
+                    <td>${e.first_name}</td>
+                    <td>${e.last_name}</td>
+                    <td>${e.age}</td>
+                    <td>${e.email}</td>
+                    <td>${e.phone}</td>
+                    <td>${e.password}</td>
+                    <td>${e.gender}</td>
+                    <td>${e.hobbies}</td>
+                    <td>${e.skill}</td>
+                    <td>${e.country}</td>
+                    <td>${e.state}</td>
+                    <td>${e.city}</td>
+                    <td>${e.description}</td>
+                    <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${e.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
+                    <td><button class="closeBtn" onclick="deletePopup(${e.id})"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`
+                });
+                tbody.innerHTML = Tempdata;
+            }
+pagination();
+pageChange(1);
+pagination_row_inp.addEventListener("keypress", () => {
+    pagination();
+})
+next_page.addEventListener("click",()=>{
+
+})
+
+console.log('allUsers :', allUsers);
 // ----------------------------- Trash data  -----------------------------
 displayOnTrashTable()
 function displayOnTrashTable() {
@@ -1192,6 +1342,9 @@ function displayOnTrashTable() {
             </tr>`
     });
     trash_tbody.innerHTML += deletedTempData;
+
+    pagination();
+    pageChange(1);
 };
 function deleteTrashRow(id) {
     let row = deleted_user.findIndex((e) => e.id == id);
@@ -1200,16 +1353,31 @@ function deleteTrashRow(id) {
     localStorage.setItem("deleted_user", JSON.stringify(deleted_user));
     trash_tbody.innerHTML = ""
     displayOnTrashTable();
+    pagination();
+    pageChange(1);
 }
 function recoverTrashRow(id) {
     let allId = [];
     allUsers.map((e) => {
         allId.push(e.id);
     })
-    let allIdArr = allId.sort();
+    for (i = 0; i < allId.length; i++) {
+        for (j = i + 1; j < allId.length; j++) {
+            let a = 0;
+            if (allId[i] > allId[j]) {
+                a = allId[i];
+                allId[i] = allId[j];
+                allId[j] = a;
+            }
+        }
+    }
+    console.log('allIdArr :', allId);
     let newId
-    for (i = 0; i < allIdArr.length; i++) {
-        newId = allIdArr[i] + 1;
+    for (i = 0; i < allId.length; i++) {
+        newId = allId[i] + 1;
+    }
+    if(newId === undefined){
+        newId = 0;
     }
     //  = allUsers.length + 1;
     let rowCount = deleted_user.findIndex((e) => e.id == id);
@@ -1221,75 +1389,13 @@ function recoverTrashRow(id) {
     localStorage.setItem("deleted_user", JSON.stringify(deleted_user));
     displayOnTrashTable();
     displayOnTable();
+    pagination();
+    pageChange(1);
 }
 function delete_all_trash() {
     deleted_user = [];
     localStorage.setItem("deleted_user", JSON.stringify(deleted_user));
     displayOnTrashTable();
-}
-
-// // // ----------------------------- Pagination on table -----------------------------
-function pagination() {
-    let n = pagination_row_inp.value;
-    console.log('n :', n);
-    let allPaginationBtn = document.getElementById("allPaginationBtn");
-    // tbody.innerHTML=""
-
-
-    let btnLength = Math.ceil(allUsers.length / n);
-
-    for (i = 1; i <= btnLength; i++) {
-        allPaginationBtn.innerHTML +=
-            `
-            <button class="register_btn pagination_btn" id="${i}" onclick="pageChange(${i})">${i}</button>
-        `
-    }
-
-
-    // if (allUsers.length > 10) {
-    //     for (i = 0; i < n; i++) {
-    //         arr1.push(allUsers[i]);
-    //     }
-    // } else {
-    //     for (i = 0; i < allUsers.length; i++) {
-    //         arr1.push(allUsers[i])
-    //     }
-    // }
-
-}
-function pageChange(pageNo) {
-    let tempallUsers = JSON.parse(localStorage.getItem("users"));
-    let n = pagination_row_inp.value;
-    let Tempdata = "";
-    tempallUsers.splice((pageNo - 1) * n, n).forEach((e) => {
-        Tempdata +=
-            `
-                <tr id="${e.id}">
-                    <td><button data-bs-toggle="modal" data-bs-target="#userDetailsModal" onclick="showUserInfo(${e.id})" style="margin:10px 10px;"><i class="fa-solid fa-circle-info"><i class="fa-solid fa-circle-info"></i></button</td>
-                    <td>${e.first_name}</td>
-                    <td>${e.last_name}</td>
-                    <td>${e.age}</td>
-                    <td>${e.email}</td>
-                    <td>${e.phone}</td>
-                    <td>${e.password}</td>
-                    <td>${e.gender}</td>
-                    <td>${e.hobbies}</td>
-                    <td>${e.skill}</td>
-                    <td>${e.country}</td>
-                    <td>${e.state}</td>
-                    <td>${e.city}</td>
-                    <td>${e.description}</td>
-                    <td><button data-bs-toggle="modal" data-bs-target="#staticBackdrop" class="updateBtn" onclick="updateRow(${e.id})"><i class="fa-solid fa-pen-to-square"></i></button></td>
-                    <td><button class="closeBtn" onclick="deleteRow(${e.id})"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>`
-    });
-
-
-
-    tbody.innerHTML = Tempdata;
-}
-pagination();
-pageChange(1);
-pagination_row_inp.addEventListener("keypress", () => {
     pagination();
-})
+    pageChange(1);
+}

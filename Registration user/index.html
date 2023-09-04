@@ -29,7 +29,7 @@
                     <div id="all_err_main" class="all_err_main">
 
                     </div>
-                    <div class="register_body">
+                    <div class="register_body"><!--  -->
                         <div class="row">
                             <!-- =================== First Name -->
                             <div class="col-4 input_main">
@@ -120,7 +120,7 @@
                                 </div>
                             </div>
                             <!-- =================== Hobbies -->
-                            <div class="col-12 form-check" style="margin-top: 10px;">
+                            <div class="col-8 form-check" style="margin-top: 10px;">
                                 <label class="input_label input_label_main">Hobbies :</label>
                                 <div class="ms-2 form-check-inline form-switch">
                                     <input class="form-check-input" type="checkbox" id="all" name="all" value="all" />
@@ -146,6 +146,11 @@
                                         value="swimming" />
                                     <label class="form-check-label" for="swimming">swimming</label>
                                 </div>
+                            </div>
+                            <!-- =================== Country -->
+                            <div class="col-4 input_main">
+                                <label class="input_label">Upload Image :</label>
+                                <input id="imageUpload" type="file" onchange="afterImageUpload(this)" />
                             </div>
                             <!-- =================== Country -->
                             <div class="col-4 input_main">
@@ -202,12 +207,12 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-6" style="text-align: center; margin: 0 auto;">
-                            <img src="img/user.jpeg" class="user_image" style="width: 50%;" alt="admin-image">
+                            <img src="img/user.webp" class="user_image" style="width: 50%;" alt="admin-image">
                             <h2 style="font-weight: 700; margin-top: 30px;">Vraj Patoliya</h2>
                             <h4 style="color: red;">Admin</h4>
                             <p>+91 81413 83280</p>
-                            <button type="button" data-bs-dismiss="modal" style="background-color: red;"
-                                aria-label="Close" class="mt-5 complete_register_btn">Log Out<span><i class="fa-solid fa-right-from-bracket"></i></span></button>
+                            <button type="button" data-bs-dismiss="modal"
+                                aria-label="Close" class="mt-5 complete_register_btn close-btn">Log Out<span><i class="fa-solid fa-right-from-bracket"></i></span></button>
                         </div>
                         <div class="col-6">
                             <!-- =================== admin Name -->
@@ -253,7 +258,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="user_main col-12">
-                        <div id="userInfoDisplay" class="row col-12"></div>
+                        <div id="userInfoDisplay" class="userInfoDisplay row col-12"></div>
                     </div>
                 </div>
                 <div class="modal-footer" id="modal-footer">
@@ -271,7 +276,7 @@
                 <div class="main-1 col-6">
                     <div class="user_main">
                         <div class="image">
-                            <img class="user_image" src="img/user.jpeg" alt="user-image">
+                            <img class="user_image" src="img/user.webp" alt="user-image">
                         </div>
                         <div class="info">
                             <button data-bs-toggle="modal" data-bs-target="#adminModal">
@@ -294,8 +299,8 @@
                         <span><i class="fa-solid fa-plus"></i></span></button>
                 </div>
             </div>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover table-bordered">
+            <div class="table-responsive text-nowrap">
+                <table class="table table-striped table-n table-hover table-bordered">
                     <thead>
                         <tr>
                             <th></th>
@@ -328,16 +333,27 @@
                             data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">Trash <span><i
                                     class="fa-solid fa-trash"></i></span></button>
                     </div>
-                    <div class="pagination_input_main">
-                        <input type="number" class="register_input pagination_row_inp" id="pagination_row_inp" value="10">
+                    <div class="pagination_input_main pagination_input_main">
+                        <p>Rows Per Page</p>
+                        <select onchange="pagination()" class="pagination_select select_field register_input" name="pagination_row_inp" id="pagination_row_inp">
+                            <option value="10" selected>10</option>
+                            <option value="9">9</option>
+                            <option value="8">8</option>
+                            <option value="7">7</option>
+                            <option value="6">6</option>
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                        </select>
                     </div>
                 </div>
                 <div class="main-2 col-6">
-                    <div class="pagination_btn_main d-flex" id="pagination_btn_main">
+                    <div class="pagination_btn_main d-flex" id="prev_page">
                         <button class="register_btn pagination_btn" id="register_btn"><i
                                 class="fa-solid fa-arrow-left-long"></i></button>
                         <div id="allPaginationBtn"></div>
-                        <button class="register_btn pagination_btn" id="register_btn"><i
+                        <button class="register_btn pagination_btn" id="next_page"><i
                                 class="fa-solid fa-arrow-right-long"></i></button>
                     </div>
                 </div>
@@ -387,6 +403,11 @@
         </div>
     </div>
 
+    <!--------------------------------------=== Delete popup ===-------------------------------------->
+    <div class="delete_popup dn" id="delete_popup">
+        <h4>Are you sure want to Move User To Trash!!</h4>
+        <div class="delete_btns_main" id="delete_btns_main"></div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"
         integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
@@ -397,5 +418,4 @@
     <script src="./js/bootstrap.bundle.min.js"></script>
     <script src="./js/all.min.js"></script>
 </body>
-
 </html>
