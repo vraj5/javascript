@@ -613,8 +613,9 @@ function update_form() {
 
     new_update_row.gender = gender;
 
-    console.log('new_update_row.image_src :', new_update_row.image_url);
-    new_update_row.image_url = image_src
+    if(image_src){
+        new_update_row.image_url = image_src
+    }
 
 
     all_skill.forEach((e) => {
@@ -1276,6 +1277,7 @@ function pagination() {
         <button class="register_btn pagination_btn" id="${i}" onclick="pageChange(${i})">${i}</button>
         `
     }
+    pageChange(1)
 }
 function pageChange(pageNo) {
     let pagination_row_inp = document.getElementById("pagination_row_inp");
